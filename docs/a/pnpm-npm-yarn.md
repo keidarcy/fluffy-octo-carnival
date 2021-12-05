@@ -4,32 +4,33 @@
 
 ## what's pnpm
 
-[pnpm](https://pnpm.io/) 公式サイトによると、`pnpm` は `performant npm` を表しています。
+[pnpm](https://pnpm.io/) 公式サイトによると、pnpmはperformant npmを表しています。
 
 > Fast, disk space efficient package manager
 
-なので、`pnpm`は`npm`/`yarn`同じような存在です。現在（2021年12月）、たくさんメジャーのオープンソースプロジェクト（[vue](https://github.com/vuejs/vue-next)、[prisma](https://github.com/prisma/prisma)...）は `pnpm` を使用しています。本文は`npm`/`yarn` の不足点、と`pnpm` はどっやって解決したのかついにて詳細を見てみます。
+なので、pnpmはnpm/yarn同じような存在です。現在（2021年12月）、たくさんメジャーのオープンソースプロジェクト（[vue](https://github.com/vuejs/vue-next)、[prisma](https://github.com/prisma/prisma)...）は pnpmを使用しています。本文はnpm/yarnの不足点、とpnpmはどっやって解決したのかついにて詳細を見てみます。
 
 ## quick conclusions
-`npm`/`yarn` - 不足点
 
-- フラットの`node_modules`構造は、引用していない任意のパッケージにもアクセスできてしまう。
+npm/yarn - 不足点
+
+- フラットのanode_modules構造は、引用していない任意のパッケージにもアクセスできてしまう。
 - 違うプロジェクトのパッケージが共有できなくて、ディスク容量消耗になる。
-- インストールのスピードが遅い、`node_modules`重複のインストールがある。
+- インストールのスピードが遅い、node_modules重複のインストールがある。
 
-`pnpm` - 解決法
+pnpm - 解決法
 
-- シンボリックリンクを用い独自の`node_modules`構造を使用して、`package.json`にあるものしかアクセスできない（厳格）。
+- シンボリックリンクを用い独自のnode_modules構造を使用して、package.jsonにあるものしかアクセスできない（厳格）。
 - インストールモジュールはグローバルストアからハードリンクされ、ディスク容量をセーブ（効率的）。
 - 上記の対応で、インストールも早くなる（速い）。
 
-厳格、効率的、速いとモノリポサポートも公式サイトから、`pnpm`の特徴と言われています。ただ、`npm8`と`yarn`もモノリポサポートなので、一応不足点と考えていないです。`pnpm`のモノリポをサポートは最後で少し話します。
+厳格、効率的、速いとモノリポサポートも公式サイトから、pnpmの特徴と言われています。ただ、npm8とyarnもモノリポサポートなので、一応不足点と考えていないです。pnpmのモノリポをサポートは最後で少し話します。
 
 ## disk space efficient
 
-### `npm`/`yarn` - heavy node_modules folders
+###npm/yarn- heavy node_modules folders
 
-`npm`/`yarn` はディスク容量使いすぎという不足点があって、同じプロジェクをト100回インストールしたら、100分のnode_modulesコピーがディスクに保存されます。日常の例では、前のプロジェクトが終わって、node_modulesがそのまま残って大量のディスク容量を使ってしまうことがよくあります。これを解決するため、[npkill](https://npkill.js.org/)がよく使われます。
+npm/yarnはディスク容量使いすぎという不足点があって、同じプロジェクをト100回インストールしたら、100分のnode_modulesコピーがディスクに保存されます。日常の例では、前のプロジェクトが終わって、node_modulesがそのまま残って大量のディスク容量を使ってしまうことがよくあります。これを解決するため、[npkill](https://npkill.js.org/)がよく使われます。
 
 ```shell
 $ npx npkill
@@ -38,13 +39,13 @@ $ npx npkill
 
 ### pnpm - disk space efficient
 
-一方、`pnpm`はパッケージを全部同一フォルダ（content-addressable store）に保存して、同じパッケージの同じばジョンを再度インストールしたら、ハードリンクを作るだけです。MacOsデフォルトの場所は`~/.pnpm-store`になります。しかも、同じパッケージの違うバージョンは差分だけが新たに保存されます。そうしたら、インストールする時に、storeにあったら、再利用、なければ、ダンロードしstoreに保存する形になります。
+一方、pnpmはパッケージを全部同一フォルダ（content-addressable store）に保存して、同じパッケージの同じばジョンを再度インストールしたら、ハードリンクを作るだけです。MacOsデフォルトの場所は~/.pnpm-storeになります。しかも、同じパッケージの違うバージョンは差分だけが新たに保存されます。そうしたら、インストールする時に、storeにあったら、再利用、なければ、ダンロードしstoreに保存する形になります。
 
 ハードリンクを使って、できたことは
-- インストールが非常に高速([ベンチマーク](https://pnpm.io/benchmarks)で`yarn`の[pnpモード](https://classic.yarnpkg.com/en/docs/pnp/)より早い)
+- インストールが非常に高速([ベンチマーク](https://pnpm.io/benchmarks)でyarnの[pnpモード](https://classic.yarnpkg.com/en/docs/pnp/)より早い)
 - ディスク容量節約
 
-以下はexpress インストールしたことがあるパソコンで再インストールする時のアウトプットです。ついでに、`npm`/`yarn`インストール時のアウトプットも貼っておきます。
+以下はexpress インストールしたことがあるパソコンで再インストールする時のアウトプットです。ついでに、npm/yarnインストール時のアウトプットも貼っておきます。
 
 pnpm
 
@@ -123,12 +124,12 @@ pnpmはどのぐらいパッケージ再利用か、新しくダンロードし�
 ## node_modules structure and dependency resolution
 
 これからは同じシンプルの例：barに依存するパッケージfooをインストールというシーンを考えてください。
-`npm`/`yarn`は現在の形になるまで大きく3回の遷移があります。1つづつ見ていきましょう。
+npm/yarnは現在の形になるまで大きく3回の遷移があります。1つづつ見ていきましょう。
 
-### `npm1` - nested node_modules
+### npm1 - nested node_modules
 
 fooはbarに依存するので、一番単純の考え方ではbarはfooのnode_modulesに入れればいいですね。
-`npm1`も同じ考え方なので、このような構造になります。
+npm1も同じ考え方なので、このような構造になります。
 ```
 .
 └── node_modules
@@ -164,9 +165,9 @@ fooはbarに依存するので、一番単純の考え方ではbarはfooのnode_
 2. 重複のインストールが大量発生。仮にfooとbarが同じバージョンのloadshに依存性があったら、インストールしたら、別々のnode_modulesは全く同じlodashがあります。
 3. 同じインスタンスのバリューを共有できないです。例えば、違う場所のReactを引用したら違うインスタンスになるので、共有すべき内部の変数は共有できないです。
 
-### `npm3`/`yarn` - flat node_modules
+### npm3/yarn - flat node_modules
 
-`npm3`から（`yarn`も同じ) flat node_modulesを採用されて、今まで使われています。nodejsの[依存性解析](https://nodejs.org/api/modules.html#all-together)のアルゴリズムは現在のdirectoryにnode_modulesで見つからなければ、再帰的に親のdirectoryのnode_modulesに解析するルールがあって、これを利用して全てのパッケージをnode_modules直下において、共有できないものと依存pathが長すぎる問題を解決できました。
+npm3から（yarnも同じ) flat node_modulesを採用されて、今まで使われています。nodejsの[依存性解析](https://nodejs.org/api/modules.html#all-together)のアルゴリズムは現在のdirectoryにnode_modulesで見つからなければ、再帰的に親のdirectoryのnode_modulesに解析するルールがあって、これを利用して全てのパッケージをnode_modules直下において、共有できないものと依存pathが長すぎる問題を解決できました。
 
 上記の例では以下のような構造になります。
 
@@ -243,10 +244,10 @@ bar - lodash@1.0.1
 
 結果はどちらも可能です・・・
 
-`package.json`での位置で決まります。fooが上なら、上の構造、じゃなければ下の構造。このような不確定性はDoppelgangersと言います。
+package.jsonでの位置で決まります。fooが上なら、上の構造、じゃなければ下の構造。このような不確定性はDoppelgangersと言います。
 
 
-### `npm5.x`/`yarn` - flat node_modules with lock file
+### npm5.x/yarn - flat node_modules with lock file
 
 node_modulesインストールの不確定性の解決ため、lockファイルが導入されました。そうすれば、何回をインストールしても、同じような構造になることが可能になるます。これもlockファイルをrepositoryに必ず入れて、手動で編集しない理由です。
 
@@ -292,7 +293,7 @@ node_modulesが生成するまでのステップ大きく二つあります。
                 └── bar -> <store>/bar
 ```
 
-これで最もシンプルなpnpm node_modulesの構造になります。プロジェクトのコードは`package.json`にあるものしか引用できないことと、無駄なインストールが完全になしでできます。[peers dependencies](https://pnpm.io/how-peers-are-resolved)は少し複雑になりますが、peer以外は全部このような構造を持つことができます。
+これで最もシンプルなpnpm node_modulesの構造になります。プロジェクトのコードはpackage.jsonにあるものしか引用できないことと、無駄なインストールが完全になしでできます。[peers dependencies](https://pnpm.io/how-peers-are-resolved)は少し複雑になりますが、peer以外は全部このような構造を持つことができます。
 例えば、fooとbarは同時にlodashを依存としたら、以下のような構造になります。
 
 ```shell
@@ -323,7 +324,7 @@ node_modulesが生成するまでのステップ大きく二つあります。
 npmも解決するため、[global-style](https://docs.npmjs.com/cli/v8/using-npm/config#global-style)という設定でflatのnode_modulesを禁止することができますが、nested node_modules時代の問題に戻って、この解決法は広がっていないです。
 
 #### dependency-check
-`npm`/`yarn`自体では解決しにくいので、[dependency-check](https://github.com/dependency-check-team/dependency-check)というツールを使ってチェックします。
+npm/yarn自体では解決しにくいので、[dependency-check](https://github.com/dependency-check-team/dependency-check)というツールを使ってチェックします。
 
 ```
 $ dependency-check ./package.json --verbose
@@ -338,7 +339,7 @@ Success! All dependencies in package.json are used in the code
 
 ### basic command
 上記の説明でpnpmは非常に複雑なイメージかもしれないですが、実は全く違います！
-`npm`/`yarn`を使ったことがある人は、ほぼ勉強コストなし pnpm使えます。いくつ例のコマンドを見てみましょう。
+npm/yarnを使ったことがある人は、ほぼ勉強コストなし pnpm使えます。いくつ例のコマンドを見てみましょう。
 
 ```shell
 pnpm install express
