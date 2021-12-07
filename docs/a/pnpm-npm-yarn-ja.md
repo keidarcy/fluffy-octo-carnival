@@ -2,14 +2,14 @@
 
 [[toc]]
 
-## what's pnpm
+## pnpmとは
 
 [pnpm](https://pnpm.io/) 公式サイトによると、pnpmはperformant npmを表しています。
 > Fast, disk space efficient package manager
 
 なので、pnpmはnpm/yarn同じような存在です。現在（2021年12月）、たくさんメジャーのオープンソースプロジェクト（[vue](https://github.com/vuejs/vue-next)、[prisma](https://github.com/prisma/prisma)...）は pnpmを使用しています。本文はnpm/yarnの不足点、とpnpmはどっやって解決したのかついにて詳細を見てみます。
 
-## quick conclusions
+## 結論
 
 npm/yarn - 不足点
 
@@ -25,9 +25,9 @@ pnpm - 解決法
 
 厳格、効率的、速いとモノリポサポートも公式サイトから、pnpmの特徴と言われています。ただ、npm8とyarnもモノリポサポートなので、一応不足点だと考えていないです。pnpmのモノリポをサポートは最後で少し話します。
 
-## disk space efficient
+## ディスクスペース
 
-###npm/yarn- heavy node_modules folders
+### npm/yarn- ディスクスペース消耗のnode_modules
 
 npm/yarnはディスク容量使いすぎという不足点があって、同じパッケージを100回分インストールしたら、100分のパッケージがnode_modulesのディスクに保存されます。日常の例では、前のプロジェクトが終わって、node_modulesがそのまま残ってしまったら、大量のディスク容量を使うことがよくあります。これを解決するため、[npkill](https://npkill.js.org/)がよく使われます。
 
@@ -36,7 +36,7 @@ $ npx npkill
 ```
 で現在フォルダ配下で全てのnode_modulesをスキャンして、動的で削除できます。
 
-### pnpm - disk space efficient
+### pnpm - 効率的なディスクスペース
 
 一方、pnpmはパッケージを同一フォルダ（content-addressable store）に保存して、同じパッケージの同じばジョンを再度インストールしたら、ハードリンクを作るだけです。MacOsデフォルトの場所は~/.pnpm-storeになります。しかも、同じパッケージの違うバージョンは差分だけが新たに保存されます。そうしたら、インストールする時に、storeにあったら、再利用、なければ、ダンロードしてstoreに保存する形になります。
 
@@ -121,12 +121,12 @@ info All dependencies
 pnpmはどのぐらいパッケージ再利用か、新しくダンロードしたかすぐ分かるようになっているので、アウトプットのわかりやすさと言っても少し勝つかなと思いますね。
 
 
-## node_modules structure and dependency resolution
+## node_modulesの構造と依存関係の解決
 
 これからは同じシンプルの例：barに依存するパッケージfooをインストールというシーンを考えてください。
 npm/yarnは現在の形になるまで3回大きなアップデートがあります。pnpmの改善点を理解するため、1つづつ見ていきましょう。
 
-### npm1 - nested node_modules
+### npm1 - ネストされるnode_modules
 
 fooはbarに依存するので、一番単純の考え方ではbarはfooのnode_modulesに入れればいいですね。
 npm1も同じ考え方なので、このような構造になります。
@@ -166,7 +166,7 @@ npm1も同じ考え方なので、このような構造になります。
 - 重複のインストールが大量発生。仮にfooとbarが同じバージョンのloadshに依存性があったら、インストールしたら、別々のnode_modulesは全く同じlodashがあります。
 - 同じインスタンスのバリューが共有できないです。例えば、違う場所のReactを引用したら違うインスタンスになるので、共有すべき内部の変数は共有できないです。
 
-### npm3/yarn - flat node_modules
+### npm3/yarn - フラットのnode_modules
 
 npm3から（yarnも同じ) flat node_modulesを採用されて、今まで使われています。nodejsの[依存性解析](https://nodejs.org/api/modules.html#all-together)のアルゴリズムは現在のディレクトリにnode_modulesで見つからなければ、再帰的に親のディレクトリのnode_modulesに解析するルールがあって、これを利用して全てのパッケージをプロジェクト直下のnode_modulesにおいて、共有できないものと依存パスが長すぎる問題を解決できました。
 
@@ -248,14 +248,14 @@ bar - lodash@1.0.1
 package.jsonでの位置で決まります。fooが上なら、上の構造、じゃなければ下の構造。このような不確定性はDoppelgangersと言います。
 
 
-### npm5.x/yarn - flat node_modules with lock file
+### npm5.x/yarn - フラットのnode_modulesとlock file
 
 node_modulesインストールの不確定性の解決ため、lockファイルが導入されました。そうすれば、何回をインストールしても、同じような構造になることが可能になります。これもlockファイルを必ず、バージョン管理に入れて、手動で編集しない理由です。
 
 ただし、flatアルゴリズムの複雑さ、とPhantomアクセス、性能と安全の問題は未解決です。
 
 
-### pnpm - symlinked node_modules structure
+### pnpm - シンボリックリンクに基づくnode_modules構造
 
 この部分は複雑で公式サイトでの[説明](https://pnpm.io/symlinked-node-modules-structure)は一番良い気がしますが、これに基づいて説明してみます。
 
@@ -322,7 +322,7 @@ node_modulesが生成するまでのステップ大きく2つあります。
 これで、どのような複雑の依存性でもこの深さのパスで完結は可能となって、革新的なnode_modules構造です。
 
 
-### other solutions
+### pnpm以外の解決法
 
 #### npm global-style
 npmもflat node_modulesの問題点を解決するため、[global-style](https://docs.npmjs.com/cli/v8/using-npm/config#global-style)という設定でflat node_modulesを禁止することができますが、nested node_modules時代の問題に戻って、この解決法は広がっていないです。
@@ -339,9 +339,9 @@ Success! All dependencies in package.json are used in the code
 
 他の解決法と比べて、pnpmはやっぱり一番スッキリしますね！
 
-## additional
+## 最後に
 
-### basic command
+### 基本のコマンド
 上記の説明でpnpmは非常に複雑なイメージかもしれないですが、実は全く違います！
 npm/yarnを使ったことがある人は、ほぼ勉強コストなしでpnpmが使えます。いくつ例のコマンドを見てみましょう。
 
@@ -352,7 +352,7 @@ pnpm remove express
 ```
 ほぼ知っているコマンドと変わらないですね！
 
-### monorepo support
+### モノリポサポート
 
 pnpmはモノリポもサポートです。作者は[lernaとの比較の文章](https://medium.com/pnpm/pnpm-vs-lerna-filtering-in-a-multi-package-repository-1f68bc644d6a)もあります。詳細を説明すると、長くなるので、ここは一例だけ紹介させます。
 
