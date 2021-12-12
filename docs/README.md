@@ -14,133 +14,136 @@ lastUpdated: false
 <a target='no_blank' href='https://github.com/keidarcy'>tell</a> me what bring you to here :alien:
 
 <script>
-(function() {
-  let canvas;
-  let ctx;
+export default {
+  mounted () {
+      (function() {
+    let canvas;
+    let ctx;
 
-  const layers = [[{ id: 0, x: 300, y: 700, size: 1 }]];
-  let speed = 20;
-  const finalSpeed = 0.2;
+    const layers = [[{ id: 0, x: 300, y: 700, size: 1 }]];
+    let speed = 20;
+    const finalSpeed = 0.2;
 
-  let isFinalSpeed = false;
-  let shouldGenerateStar = true;
+    let isFinalSpeed = false;
+    let shouldGenerateStar = true;
 
-  initializeCanvas();
-  populateStars();
-  nextFrame();
-  addListeners();
-
-  function initializeCanvas() {
-    canvas = document.createElement('canvas');
-    canvas.id = 'starsCanvas';
-    canvas.style.zIndex = 10;
-    canvas.style.position = 'fixed';
-    canvas.style.opacity = '0.3';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-
-    ctx = canvas.getContext('2d');
-    const body = document.getElementsByTagName('body')[0];
-
-    if(!document.getElementsByTagName('canvas').length) {
-	body.appendChild(canvas);
-	resizeCanvas();
-    }
-  }
-
-  function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-
-  function addListeners() {
-    window.addEventListener('resize', resizeCanvas);
-    window.addEventListener('click', () => speedPulse());
-  }
-
-  function speedPulse() {
-    speed = 20;
-  }
-
-  function refresh() {
-    clearCanvas();
-    checkGenerateStars();
-    checkSpeed();
-    layers.map(layer => {
-      drawLayer(layer);
-      calculatePositions(layer);
-    });
-    nextFrame();
-  }
-
-  function checkSpeed() {
-    if (speed > finalSpeed) {
-      speed = speed * 0.97;
-      isFinalSpeed = false;
-    } else {
-      speed = finalSpeed;
-      isFinalSpeed = true;
-    }
-  }
-
-  function clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-
-  function drawLayer(layer) {
-    ctx.fillStyle = 'white';
-    layer.map(element => {
-      ctx.fillRect(element.x, element.y, element.size, element.size);
-    });
-  }
-
-  function calculatePositions(layer) {
-    layer.map(element => {
-      element.y -= speed * element.size;
-      if (element.y < 300) deleteElementFromLayer(layer, element);
-    });
-  }
-
-  function deleteElementFromLayer(layer, element) {
-    layer = layer.filter(object => object.id !== element.id);
-  }
-
-  function checkGenerateStars() {
-    if (!shouldGenerateStar) return;
-    shouldGenerateStar = false;
+    initializeCanvas();
     populateStars();
-    setDelayForStarGeneration();
-  }
+    nextFrame();
+    addListeners();
 
-  function setDelayForStarGeneration() {
-    setTimeout(
-      () => (shouldGenerateStar = true),
-      getRandomInt(500, 2000) / (speed + 0.9)
-    );
-  }
+    function initializeCanvas() {
+      canvas = window.document.createElement('canvas');
+      canvas.id = 'starsCanvas';
+      canvas.style.zIndex = 10;
+      canvas.style.position = 'fixed';
+      canvas.style.opacity = '0.3';
+      canvas.style.top = '0';
+      canvas.style.left = '0';
 
-  function populateStars() {
-    const starsAmount = isFinalSpeed ? 7 : 12;
+      ctx = canvas.getContext('2d');
+      const body = window.document.getElementsByTagName('body')[0];
 
-    const starSizes = [1, 1, 1, 2, 2, 3, 3, 4, 5, 6];
-
-    for (let i = 0; i < starsAmount; ++i) {
-      let star = {};
-      star.id = getRandomInt(0, 500000);
-      star.size = starSizes[getRandomInt(0, starSizes.length)];
-      star.x = getRandomInt(0, canvas.width);
-      star.y = canvas.height;
-      layers[0].push(star);
+      if(!window.document.getElementsByTagName('canvas').length) {
+    body.appendChild(canvas);
+    resizeCanvas();
+      }
     }
-  }
 
-  function nextFrame() {
-    window.requestAnimationFrame(refresh);
-  }
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
 
-  function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-})();
+    function addListeners() {
+      window.addEventListener('resize', resizeCanvas);
+      window.addEventListener('click', () => speedPulse());
+    }
 
+    function speedPulse() {
+      speed = 20;
+    }
+
+    function refresh() {
+      clearCanvas();
+      checkGenerateStars();
+      checkSpeed();
+      layers.map(layer => {
+        drawLayer(layer);
+        calculatePositions(layer);
+      });
+      nextFrame();
+    }
+
+    function checkSpeed() {
+      if (speed > finalSpeed) {
+        speed = speed * 0.97;
+        isFinalSpeed = false;
+      } else {
+        speed = finalSpeed;
+        isFinalSpeed = true;
+      }
+    }
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawLayer(layer) {
+      ctx.fillStyle = 'white';
+      layer.map(element => {
+        ctx.fillRect(element.x, element.y, element.size, element.size);
+      });
+    }
+
+    function calculatePositions(layer) {
+      layer.map(element => {
+        element.y -= speed * element.size;
+        if (element.y < 300) deleteElementFromLayer(layer, element);
+      });
+    }
+
+    function deleteElementFromLayer(layer, element) {
+      layer = layer.filter(object => object.id !== element.id);
+    }
+
+    function checkGenerateStars() {
+      if (!shouldGenerateStar) return;
+      shouldGenerateStar = false;
+      populateStars();
+      setDelayForStarGeneration();
+    }
+
+    function setDelayForStarGeneration() {
+      setTimeout(
+        () => (shouldGenerateStar = true),
+        getRandomInt(500, 2000) / (speed + 0.9)
+      );
+    }
+
+    function populateStars() {
+      const starsAmount = isFinalSpeed ? 7 : 12;
+
+      const starSizes = [1, 1, 1, 2, 2, 3, 3, 4, 5, 6];
+
+      for (let i = 0; i < starsAmount; ++i) {
+        let star = {};
+        star.id = getRandomInt(0, 500000);
+        star.size = starSizes[getRandomInt(0, starSizes.length)];
+        star.x = getRandomInt(0, canvas.width);
+        star.y = canvas.height;
+        layers[0].push(star);
+      }
+    }
+
+    function nextFrame() {
+      window.requestAnimationFrame(refresh);
+    }
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+  })();
+  }
+}
 </script>
