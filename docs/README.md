@@ -11,7 +11,7 @@ lastUpdated: false
 <br />
 
 #### Hey, I am Xing Yahao :rocket:
-<a target='no_blank' href='https://github.com/keidarcy'>tell</a> me what bring you to here :alien:
+<a target='no_blank' href='https://github.com/keidarcy'>tell</a> me what brings you here :alien:
 
 <script>
 export default {
