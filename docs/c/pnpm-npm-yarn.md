@@ -260,13 +260,13 @@ bar - lodash@1.0.1
 然而，平铺式的算法的复杂性，以及Phantom、性能和安全问题仍未得到解决。
 
 
-### pnpm - シンボリックリンクに基づくnode_modules構造
+### pnpm - 基于符号链接的node_modules结构
 
-この部分は複雑で公式サイトでの[説明](https://pnpm.io/symlinked-node-modules-structure)は一番良い気がしますが、これに基づいて説明してみます。
+这一部分略微复杂，我觉得最好的解释方式是在官方网站上的[説明](https://pnpm.io/symlinked-node-modules-structure)，所以在这边基于这篇文章加上自己的理解是这说明一下。
 
-node_modulesが生成するまでのステップ大きく2つあります。
+生成node_modules主要分为两个步骤。
 
-#### ハードリンクのフォルダー構造
+#### 基于硬连接的node_modules
 
 ```
 .
@@ -279,13 +279,12 @@ node_modulesが生成するまでのステップ大きく2つあります。
             └── node_modules
                 └── bar -> <store>/bar
 ```
-一見他の構造と全く違って、最初のnode_modulesの配下は.pnpmというフォルダしかないです。.pnpmの配下は<パッケージ名＠バージョン>フォルダができて、その配下の<パッケージ名>フォルダはstoreのハードリンクです。これだけで動かないので、次のステップも大事です。
+乍一看，结构与npm/yarn的结构完全不同，第一手node_modules下面的唯一文件夹叫做.pnpm。在.pnpm下面是一个<PACKAGE_NAME＠VERSION>文件夹，而在其下面<PACKAGE_NAME>的文件夹是一个content-addressable store的硬链接。 当然仅仅是这样还无法使用，所以下一步软链接也很关键。
 
-#### 依頼解析用のシンボリックリンク
+#### 用于依赖解析的软链接
 
-- foo内にbarを引用するためのシンボリックリンク
-- プロジェクトからfooを引用するためのシンボリックリンク
-
+- 用于在foo内引用bar的软链接
+- 在项目里引用foo的软链接
 
 ```
 .
@@ -301,9 +300,9 @@ node_modulesが生成するまでのステップ大きく2つあります。
                 └── bar -> <store>/bar
 ```
 
-これで最もシンプルなpnpm node_modulesの構造になります。プロジェクトのコードはpackage.jsonにあるものしか引用できないことと、無駄なインストールが完全になしでできます。[peers dependencies](https://pnpm.io/how-peers-are-resolved)は少し複雑になりますが、peer以外は全部このような構造を持つことができます。
+当然这只是使用pnpm的node_modules结构最简单的例子！但可以发现项目中能使用的代码只能是package.json中定义过的，并且完全可以做到没用无用的安装。[peers dependencies](https://pnpm.io/how-peers-are-resolved)的话会比这个稍微复杂一些，但一旦不考虑peer的话任何复杂的依赖都可以完全符合这种结构。
 
-例えば、fooとbarは同時にlodashを依存としたら、以下のような構造になります。
+例如，当foo和bar同时依赖于lodash的时候，就会像下图这样的结构。
 
 ```
 .
@@ -324,44 +323,47 @@ node_modulesが生成するまでのステップ大きく2つあります。
                 └── lodash -> <store>/lodash
 ```
 
-これで、どのような複雑の依存性でもこの深さのパスで完結は可能となって、革新的なnode_modules構造です。
+这样的话，不管是如何复杂的依赖关系都可以用这样的文件夹结构来构成，非常有创新性的结构！
 
 
 ### pnpm以外の解決法
 
 #### npm global-style
-npmもflat node_modulesの問題点を解決するため、[global-style](https://docs.npmjs.com/cli/v8/using-npm/config#global-style)という設定でflat node_modulesを禁止することができますが、nested node_modules時代の問題に戻って、この解決法は広がっていないです。
+
+npm也曾经为了解决扁平式node_modules的问题提供过，通过指定[global-style](https://docs.npmjs.com/cli/v8/using-npm/config#global-style)来禁止平铺node_modules，但这无疑又退回了嵌套式的node_modules时代的问题，所以并没有推广开来。
 
 #### dependency-check
-npm/yarn自体で、解決しにくいので、[dependency-check](https://github.com/dependency-check-team/dependency-check)というツールを使ってチェックします。
+光靠npm/yarn的话看似无法解决，所以基础社区的解决方案[dependency-check](https://github.com/dependency-check-team/dependency-check)也经常被用到。
 
 ```
 $ dependency-check ./package.json --verbose
 Success! All dependencies used in the code are listed in package.json
 Success! All dependencies in package.json are used in the code
 ```
-公式READMEの一部を見たら、やっていることは大体わかってくるでしょうか。
+有了本文的基础，光是看到README内一段命令行的输出应该也能想象到dependency-check是如何工作的了吧！
 
-他の解決法と比べて、pnpmはやっぱり一番スッキリしますね！
+果然和其他的解决方案比，pnpm显得最为优雅吧。
 
-## 最後に
+## 额外补充
 
-### 基本のコマンド
-上記の説明でpnpmは非常に複雑なイメージかもしれないですが、実は全く違います！
-npm/yarnを使ったことがある人は、ほぼ勉強コストなしでpnpmが使えます。いくつ例のコマンドを見てみましょう。
+### 基本的命令
+
+通过上文的描述，pnpm给人非常复杂的感觉，但实际用起来反而相反，非常非常的简单！
+对于使用过npm/yarn的开发者来说、几乎不需要任何的学习成本。不信的话可以看看下面的例子
 
 ```shell
 pnpm install express
 pnpm update express
 pnpm remove express
 ```
-ほぼ知っているコマンドと変わらないですね！
 
-### モノリポサポート
+几乎和熟悉的命令没有区别，对吧！
 
-pnpmはモノリポもサポートです。作者は[lernaとの比較の文章](https://medium.com/pnpm/pnpm-vs-lerna-filtering-in-a-multi-package-repository-1f68bc644d6a)もあります。詳細を説明すると、長くなるので、ここは一例だけ紹介させます。
+### monorepo的支持
+
+pnpm是对于对于monorepo支持的。pnpm的作者甚至写过[与lerna关于多个包命令的命令行比较](https://medium.com/pnpm/pnpm-vs-lerna-filtering-in-a-multi-package-repository-1f68bc644d6a)。如果详细说明的话，那就是另一篇文章了。下面之举一个简单的例子。
 
 ```shell
-pnpm --parallel  run --recursive  --filter @meetsmore test
+pnpm --parallel  run --recursive  --filter @xyh test
 ```
-やっていることは、非同期で@meetsmore配下のworkspaceでのnpm script testを実行するコマンドです。元々lernaとかモノリポ管理のライブラリー必要なシーンもpnpmだけ完結可能です。
+执行这段命令的话，就会异步执行@xyh字段下workspace的npm script test，之前需要额外安装lerna这种monorepo管理工具的场景也只需要pnpm就能做到了。
