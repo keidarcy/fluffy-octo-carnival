@@ -12,6 +12,10 @@ module.exports = {
         text: 'Github',
         link: 'https://github.com/keidarcy',
       },
+      {
+        text: 'Email',
+        children: ['keidarcy.1015@gmail.com'],
+      },
     ],
   },
 };
